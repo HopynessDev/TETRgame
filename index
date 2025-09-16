@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Name Guessing Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 600px;
+            width: 90%;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            gap: 20px;
+        }
+
+        .stat {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px 25px;
+            border-radius: 15px;
+            flex: 1;
+        }
+
+        .stat h3 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .stat p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .photo-container {
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .student-photo {
+            width: 250px;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 20px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .student-photo:hover {
+            transform: scale(1.05);
+        }
+
+        .input-section {
+            margin: 30px 0;
+        }
+
+        .name-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .name-input:focus {
+            transform: scale(1.02);
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.5);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+            min-width: 120px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn.secondary {
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+        }
+
+        .start-screen {
+            text-align: center;
+        }
+
+        .start-screen p {
+            font-size: 1.2rem;
+            margin: 20px 0;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .game-over {
+            background: rgba(255, 107, 107, 0.2);
+            border: 2px solid rgba(255, 107, 107, 0.5);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+
+        .correct {
+            background: rgba(0, 184, 148, 0.2);
+            border: 2px solid rgba(0, 184, 148, 0.5);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .progress {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            height: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(45deg, #00b894, #00a085);
+            height: 100%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .rules {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .rules h3 {
+            margin-bottom: 15px;
+            color: #ffeaa7;
+            text-align: center;
+        }
+
+        .rules ul {
+            margin-left: 20px;
+        }
+
+        .rules li {
+            margin: 8px 0;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .student-photo {
+                width: 200px;
+                height: 200px;
+            }
+
+            .stats {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Start Screen -->
+        <div id="start-screen" class="start-screen">
+            <h1>🎓 Name That Classmate!</h1>
+            
+            <p>Test your memory! Can you name all your classmates?</p>
+            
+            <div class="rules">
+                <h3>📋 Game Rules</h3>
+                <ul>
+                    <li>You'll be shown photos of your classmates</li>
+                    <li>Type the correct full name for each person</li>
+                    <li>One wrong answer and the game ends</li>
+                    <li>Try to beat your high score!</li>
+                    <li>Names are case-insensitive</li>
+                </ul>
+            </div>
+
+            <p>High Score: <strong><span id="menu-high-score">0</span></strong></p>
+
+            <button class="btn" onclick="startGame()">🚀 Start Game</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" style="display: none;">
+            <h1>🎓 Name That Student!</h1>
+            
+            <div class="stats">
+                <div class="stat">
+                    <h3 id="current-score">0</h3>
+                    <p>Current Score</p>
+                </div>
+                <div class="stat">
+                    <h3 id="high-score">0</h3>
+                    <p>High Score</p>
+                </div>
+                <div class="stat">
+                    <h3 id="remaining">0</h3>
+                    <p>Remaining</p>
+                </div>
+            </div>
+
+            <div class="progress">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+
+            <div class="photo-container">
+                <img id="student-photo" class="student-photo" src="" alt="Student Photo">
+            </div>
+
+            <div class="input-section">
+                <input type="text" id="name-guess" class="name-input" placeholder="Enter student's name..." autocomplete="off">
+                <br>
+                <button class="btn" onclick="submitGuess()">Submit Guess</button>
+                <button class="btn secondary" onclick="skipStudent()">Skip</button>
+            </div>
+
+            <div id="feedback"></div>
+
+            <div id="game-over-screen" style="display: none;">
+                <div class="game-over">
+                    <h2>🎯 Game Over!</h2>
+                    <p>You scored <span id="final-score">0</span> out of <span id="total-students">0</span> points!</p>
+                    <p id="high-score-msg"></p>
+                    <br>
+                    <button class="btn" onclick="restartGame()">🔄 Play Again</button>
+                    <button class="btn secondary" onclick="backToMenu()">🏠 Main Menu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // STUDENT DATA - MODIFY THIS SECTION
+        // ============================================
+        const STUDENT_DATA = [
+            {
+                name: "Victor",
+                photo: "photos/john_smith.jpg"
+            },
+            {
+                name: "Emma",
+                photo: "photos/jane_doe.jpg"
+            },
+            {
+                name: "Diego",
+                photo: "photos/mike_johnson.jpg"
+            },
+            {
+                name: "Mariana",
+                photo: "photos/sarah_wilson.jpg"
+            },
+            {
+                name: "Sandra",
+                photo: "photos/alex_chen.jpg"
+            }
+            // Add more students here following the same format:
+            // {
+            //     name: "Student Full Name",
+            //     photo: "path/to/photo.jpg"
+            // },
+        ];
+        // ============================================
+        // END STUDENT DATA SECTION
+        // ============================================
+
+        let gameData = {
+            currentIndex: 0,
+            score: 0,
+            highScore: parseInt(localStorage.getItem('nameGameHighScore')) || 0,
+            gameOrder: [],
+            gameActive: false
+        };
+
+        // Initialize high score display
+        document.getElementById('menu-high-score').textContent = gameData.highScore;
+
+        function startGame() {
+            // Validate that we have student data
+            if (STUDENT_DATA.length === 0) {
+                alert('No student data available. Please contact the administrator.');
+                return;
+            }
+            
+            // Initialize game
+            gameData.score = 0;
+            gameData.currentIndex = 0;
+            gameData.gameActive = true;
+            
+            // Create randomized order
+            gameData.gameOrder = Array.from({length: STUDENT_DATA.length}, (_, i) => i);
+            shuffleArray(gameData.gameOrder);
+            
+            // Switch to game screen
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            document.getElementById('game-over-screen').style.display = 'none';
+            
+            updateUI();
+            showNextStudent();
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('current-score').textContent = gameData.score;
+            document.getElementById('high-score').textContent = gameData.highScore;
+            document.getElementById('remaining').textContent = STUDENT_DATA.length - gameData.currentIndex;
+            
+            const progress = (gameData.currentIndex / STUDENT_DATA.length) * 100;
+            document.getElementById('progress-bar').style.width = progress + '%';
+        }
+
+        function showNextStudent() {
+            if (gameData.currentIndex >= STUDENT_DATA.length) {
+                endGame();
+                return;
+            }
+            
+            const studentIndex = gameData.gameOrder[gameData.currentIndex];
+            const student = STUDENT_DATA[studentIndex];
+            
+            document.getElementById('student-photo').src = student.photo;
+            document.getElementById('student-photo').onerror = function() {
+                // Handle missing image
+                this.alt = "Image not found: " + student.name;
+                this.style.backgroundColor = "#444";
+                this.style.display = "flex";
+                this.style.alignItems = "center";
+                this.style.justifyContent = "center";
+            };
+            
+            document.getElementById('name-guess').value = '';
+            document.getElementById('name-guess').focus();
+            document.getElementById('feedback').innerHTML = '';
+            
+            updateUI();
+        }
+
+        function submitGuess() {
+            const guess = document.getElementById('name-guess').value.trim();
+            
+            if (!guess) {
+                alert('Please enter a name!');
+                return;
+            }
+            
+            const studentIndex = gameData.gameOrder[gameData.currentIndex];
+            const correctName = STUDENT_DATA[studentIndex].name;
+            
+            if (normalizeString(guess) === normalizeString(correctName)) {
+                // Correct!
+                gameData.score++;
+                showFeedback(`✅ Correct! That's ${correctName}`, 'correct');
+                setTimeout(() => {
+                    gameData.currentIndex++;
+                    showNextStudent();
+                }, 1500);
+            } else {
+                // Wrong - game over
+                showFeedback(`❌ Incorrect! That was ${correctName}`, 'game-over');
+                setTimeout(endGame, 2000);
+            }
+        }
+
+        function skipStudent() {
+            const studentIndex = gameData.gameOrder[gameData.currentIndex];
+            const correctName = STUDENT_DATA[studentIndex].name;
+            
+            showFeedback(`⏭️ Skipped! That was ${correctName}`, 'game-over');
+            setTimeout(endGame, 2000);
+        }
+
+        function normalizeString(str) {
+            return str.toLowerCase().replace(/[^a-z0-9]/g, '');
+        }
+
+        function showFeedback(message, type) {
+            const feedback = document.getElementById('feedback');
+            feedback.innerHTML = `<div class="${type}"><h3>${message}</h3></div>`;
+        }
+
+        function endGame() {
+            gameData.gameActive = false;
+            
+            // Check for high score
+            let highScoreMsg = '';
+            if (gameData.score > gameData.highScore) {
+                gameData.highScore = gameData.score;
+                localStorage.setItem('nameGameHighScore', gameData.highScore);
+                highScoreMsg = '🎉 New High Score!';
+                
+                // Update menu high score display
+                document.getElementById('menu-high-score').textContent = gameData.highScore;
+            } else if (gameData.score === gameData.highScore && gameData.score > 0) {
+                highScoreMsg = '🔥 Tied your best score!';
+            }
+            
+            // Perfect score message
+            if (gameData.score === STUDENT_DATA.length) {
+                highScoreMsg += (highScoreMsg ? ' ' : '') + '🏆 Perfect Score!';
+            }
+            
+            document.getElementById('final-score').textContent = gameData.score;
+            document.getElementById('total-students').textContent = STUDENT_DATA.length;
+            document.getElementById('high-score-msg').textContent = highScoreMsg;
+            document.getElementById('game-over-screen').style.display = 'block';
+            
+            updateUI();
+        }
+
+        function restartGame() {
+            gameData.score = 0;
+            gameData.currentIndex = 0;
+            gameData.gameActive = true;
+            
+            // Reshuffle the order
+            shuffleArray(gameData.gameOrder);
+            
+            document.getElementById('game-over-screen').style.display = 'none';
+            showNextStudent();
+        }
+
+        function backToMenu() {
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'block';
+        }
+
+        // Allow Enter key to submit guess
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && gameData.gameActive) {
+                const nameInput = document.getElementById('name-guess');
+                if (document.activeElement === nameInput || nameInput.value.trim()) {
+                    submitGuess();
+                }
+            }
+        });
+
+        // Handle image loading errors gracefully
+        document.getElementById('student-photo').addEventListener('error', function() {
+            console.log('Image failed to load:', this.src);
+        });
+    </script>
+</body>
