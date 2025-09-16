@@ -231,6 +231,7 @@
                     <li>You'll be shown photos of your classmates</li>
                     <li>Type the correct full name for each person</li>
                     <li>One wrong answer and the game ends</li>
+                    <li>You get 3 skips to use throughout the game</li>
                     <li>Try to beat your high score!</li>
                     <li>Names are case-insensitive</li>
                 </ul>
@@ -253,6 +254,10 @@
                 <div class="stat">
                     <h3 id="high-score">0</h3>
                     <p>High Score</p>
+                </div>
+                <div class="stat">
+                    <h3 id="skips-left">3</h3>
+                    <p>Skips Left</p>
                 </div>
                 <div class="stat">
                     <h3 id="remaining">0</h3>
@@ -328,6 +333,7 @@
         let gameData = {
             currentIndex: 0,
             score: 0,
+            skipsLeft: 3,
             highScore: parseInt(localStorage.getItem('nameGameHighScore')) || 0,
             gameOrder: [],
             gameActive: false
@@ -346,6 +352,7 @@
             // Initialize game
             gameData.score = 0;
             gameData.currentIndex = 0;
+            gameData.skipsLeft = 3;
             gameData.gameActive = true;
             
             // Create randomized order
@@ -371,7 +378,22 @@
         function updateUI() {
             document.getElementById('current-score').textContent = gameData.score;
             document.getElementById('high-score').textContent = gameData.highScore;
+            document.getElementById('skips-left').textContent = gameData.skipsLeft;
             document.getElementById('remaining').textContent = STUDENT_DATA.length - gameData.currentIndex;
+            
+            // Disable skip button if no skips left
+            const skipBtn = document.querySelector('button[onclick="skipStudent()"]');
+            if (skipBtn) {
+                if (gameData.skipsLeft <= 0) {
+                    skipBtn.disabled = true;
+                    skipBtn.style.opacity = '0.5';
+                    skipBtn.style.cursor = 'not-allowed';
+                } else {
+                    skipBtn.disabled = false;
+                    skipBtn.style.opacity = '1';
+                    skipBtn.style.cursor = 'pointer';
+                }
+            }
             
             const progress = (gameData.currentIndex / STUDENT_DATA.length) * 100;
             document.getElementById('progress-bar').style.width = progress + '%';
@@ -430,11 +452,21 @@
         }
 
         function skipStudent() {
+            if (gameData.skipsLeft <= 0) {
+                return; // No skips left
+            }
+            
             const studentIndex = gameData.gameOrder[gameData.currentIndex];
             const correctName = STUDENT_DATA[studentIndex].name;
             
-            showFeedback(`⏭️ Skipped! That was ${correctName}`, 'game-over');
-            setTimeout(endGame, 2000);
+            gameData.skipsLeft--;
+            
+            showFeedback(`⏭️ Skipped! That was ${correctName}. Skips remaining: ${gameData.skipsLeft}`, 'correct');
+            
+            setTimeout(() => {
+                gameData.currentIndex++;
+                showNextStudent();
+            }, 1500);
         }
 
         function normalizeString(str) {
@@ -478,6 +510,7 @@
         function restartGame() {
             gameData.score = 0;
             gameData.currentIndex = 0;
+            gameData.skipsLeft = 3;
             gameData.gameActive = true;
             
             // Reshuffle the order
@@ -508,3 +541,4 @@
         });
     </script>
 </body>
+</html>
